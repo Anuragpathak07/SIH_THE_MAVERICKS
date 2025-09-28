@@ -7,13 +7,14 @@ import tempfile
 import subprocess
 import uuid
 from fastapi import Query
+from pydantic import BaseModel
 
 # Chatbot , ML imports and Realtime API
 from Chatbot.Chatbot import process_user_query
 from Master_LLM.ML_Models.Single_frame.genai import check_frame_for_anomaly
 from Master_LLM.ML_Models.Video.genai import process_video_and_summarize
+from Master_LLM.ML_Models.Catboost.catboost import predict_slope_stability
 from Realtime_API.Realtime_API import get_weather
-
 
 app = FastAPI(title="Gemini Mine Safety Bot API")
 
@@ -40,6 +41,17 @@ class QueryRequest(BaseModel):
 
 class QueryResponse(BaseModel):
     response: str
+
+class SlopePredictionRequest(BaseModel):
+    height: float
+    cohesion: float
+    friction_angle: float
+    unit_weight: float
+    slope_angle: float
+    water_depth_ratio: float
+    rainfall_mm_7d: float
+    temperature_c: float
+    vibrations_ms2: float
 
 # ---- Routes ----
 @app.post("/chat", response_model=QueryResponse)
@@ -135,6 +147,22 @@ async def real_time_data(lat: float = Query(None), lon: float = Query(None)):
     data = get_weather(lat, lon)
     return data
 
+# ---- Predict Slope ----
+@app.post("/predict_slope")
+async def predict_slope(req: SlopePredictionRequest):
+    result = predict_slope_stability(
+        height=req.height,
+        cohesion=req.cohesion,
+        friction_angle=req.friction_angle,
+        unit_weight=req.unit_weight,
+        slope_angle=req.slope_angle,
+        water_depth_ratio=req.water_depth_ratio,
+        rainfall_mm_7d=req.rainfall_mm_7d,
+        temperature_c=req.temperature_c,
+        vibrations_ms2=req.vibrations_ms2
+    )
+    return result
+
 # ---- Curl Endpoint ----
 items = ["apple", "banana", "cherry", "date"]
 counter = {"index": 0}  # keep track of current index
@@ -160,4 +188,3 @@ async def curl():
 @app.get("/")
 async def root():
     return {"message": "✅ Gemini Mine Safety Bot API is running"}
-

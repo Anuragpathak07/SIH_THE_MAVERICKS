@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "@/hooks/use-toast";
 import { 
   Activity,
   AlertTriangle,
@@ -18,21 +19,50 @@ import {
 } from "lucide-react";
 import { useDashboard } from "../Dashboard";
 
-export const OverviewTab = () => {
-  const { rockfallNotifications, selectedLocation } = useDashboard();
+export const OverviewTab = ({ onNavigateToPINN }: { onNavigateToPINN?: () => void }) => {
+  const { rockfallNotifications, selectedLocation, aiAccuracy } = useDashboard();
+
+  const handleRunPINNAnalysis = () => {
+    if (!selectedLocation) {
+      toast({
+        title: "Location Required",
+        description: "Please select a mine location first to run PINN analysis.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log('🚀 Starting PINN Analysis flow for location:', selectedLocation);
+    
+    // Switch to PINN tab
+    if (onNavigateToPINN) {
+      onNavigateToPINN();
+    }
+
+    // Trigger auto-analysis in PINN tab with a small delay to ensure tab switch
+    setTimeout(() => {
+      console.log('📡 Dispatching auto-pinn-analysis event');
+      const autoAnalysisEvent = new CustomEvent('auto-pinn-analysis');
+      window.dispatchEvent(autoAnalysisEvent);
+      toast({
+        title: "PINN Analysis Started",
+        description: "Fetching real-time data and running analysis...",
+      });
+    }, 500);
+  };
 
   // Sensor data by location
   const sensorData = {
-    "1": { active: 247, total: 252 }, // Bailadila Iron Ore Mine
-    "2": { active: 189, total: 195 }, // Dalli-Rajhara Mine
-    "3": { active: 156, total: 160 }, // Gokul Open Pit Mine
-    "4": { active: 98, total: 102 },  // Hutti Gold Mine
-    "5": { active: 134, total: 140 }, // Jaduguda Mine
-    "6": { active: 278, total: 285 }, // Jharia Coal Mine
-    "7": { active: 167, total: 172 }, // Khetri Copper Mine
-    "8": { active: 234, total: 240 }, // Korba Coal Mine
-    "9": { active: 89, total: 94 },   // Majri Mine
-    "10": { active: 123, total: 128 } // Neemuch Cement Mine
+    "1": { active: 315, total: 320 }, // Bailadila Iron Ore Mine
+    "2": { active: 237, total: 240 }, // Dalli-Rajhara Mine
+    "3": { active: 472, total: 480 }, // Gokul Open Pit Mine
+    "4": { active: 345, total: 350 },  // Hutti Gold Mine
+    "5": { active: 470, total: 466 }, // Jaduguda Mine
+    "6": { active: 300, total: 296 }, // Jharia Coal Mine
+    "7": { active: 227, total: 230 }, // Khetri Copper Mine
+    "8": { active: 420, total: 415 }, // Korba Coal Mine
+    "9": { active: 340, total: 336 },   // Majri Mine
+    "10": { active: 310, total: 307 } // Neemuch Cement Mine
   };
 
   const getCurrentSensorData = () => {
@@ -126,9 +156,9 @@ export const OverviewTab = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">99.3%</div>
+            <div className="text-3xl font-bold text-primary">{aiAccuracy ? `${aiAccuracy}%` : '__'}</div>
             <p className="text-xs text-foreground/60 mt-1">Real-time predictions</p>
-            <Progress value={99.3} className="mt-3 h-2 bg-neutral-200" />
+            <Progress value={aiAccuracy || 0} className="mt-3 h-2 bg-neutral-200" />
           </CardContent>
         </Card>
         <Card className={`glass-card border-secondary/20`}>
@@ -150,16 +180,16 @@ export const OverviewTab = () => {
                 rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 'text-orange-600' :
                 'text-green-600' : 'text-primary'
             }`}>
-              {rockfallNotifications.trajectory || 'Stable'}
+              {rockfallNotifications.trajectory || '__'}
             </div>
             <p className="text-xs text-foreground/60 mt-1">
-              {rockfallNotifications.trajectory ? 'Live camera analysis' : 'Normal conditions'}
+              {rockfallNotifications.trajectory ? 'Live camera analysis' : '__'}
             </p>
             <Progress 
               value={
                 rockfallNotifications.trajectory ? 
                   rockfallNotifications.trajectory.toLowerCase() === 'unstable' ? 25 :
-                  rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 60 : 85 : 85
+                  rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 60 : 85 : 0
               } 
               className="mt-3 h-2 bg-neutral-200" 
             />
@@ -187,17 +217,17 @@ export const OverviewTab = () => {
                 rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 'text-yellow-600' :
                 'text-green-600' : 'text-primary'
             }`}>
-              {rockfallNotifications.riskLevel || 'Low'}
+              {rockfallNotifications.riskLevel || '__'}
             </div>
             <p className="text-xs text-foreground/60 mt-1">
-              {rockfallNotifications.riskLevel ? 'Live camera detection' : 'Stable conditions'}
+              {rockfallNotifications.riskLevel ? 'Live camera detection' : '__'}
             </p>
             <Progress 
               value={
                 rockfallNotifications.riskLevel ? 
                   rockfallNotifications.riskLevel.toLowerCase() === 'critical' ? 95 :
                   rockfallNotifications.riskLevel.toLowerCase() === 'high' ? 75 :
-                  rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 50 : 25 : 15
+                  rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 50 : 25 : 0
               } 
               className="mt-3 h-2 bg-neutral-200" 
             />
@@ -428,14 +458,19 @@ export const OverviewTab = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button variant="hero" className="w-full justify-start">
+              <Button variant="glass" className="w-full justify-start hover:bg-primary/10 hover:scale-105 transition-all duration-200">
                 <Activity className="h-4 w-4 mr-2" />
                 View Live Feed
               </Button>
               
-              <Button variant="glass" className="w-full justify-start">
+              <Button 
+                variant="glass" 
+                className="w-full justify-start" 
+                onClick={handleRunPINNAnalysis}
+              >
                 <Brain className="h-4 w-4 mr-2" />
                 Run PINN Analysis
+                {!selectedLocation && <span className="ml-auto text-xs text-muted-foreground">(Select location)</span>}
               </Button>
               
               <Button variant="glass" className="w-full justify-start">

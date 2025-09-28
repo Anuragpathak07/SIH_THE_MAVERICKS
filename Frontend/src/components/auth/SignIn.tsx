@@ -93,7 +93,7 @@ export const SignIn = ({ onSignIn }: SignInProps) => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-           MineGuard RockFall AI
+           GeoSentinel RockFall AI
           </h1>
           <p className="text-foreground/70">AI-powered mining safety platform</p>
         </div>

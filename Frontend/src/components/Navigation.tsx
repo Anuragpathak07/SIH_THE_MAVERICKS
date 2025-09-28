@@ -18,7 +18,7 @@ export const Navigation = ({ onLogoClick }: { onLogoClick?: () => void }) => {
             <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 neon-glow-aqua">
               <Shield className="h-6 w-6 text-primary" />
             </div>
-            <span className="text-xl font-semibold text-foreground">MineGuard AI</span>
+            <span className="text-xl font-semibold text-foreground">GeoSentinel AI</span>
           </button>
 
           {/* Desktop Navigation */}

@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RefreshCw, MapPin } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { DashboardSidebar } from "./DashboardSidebar";
+import { SettingsModal } from "./SettingsModal";
 import { OverviewTab } from "./dashboard/OverviewTab";
 import { PINNTab } from "./dashboard/PINNTab";
 import { RockfallTab } from "./dashboard/RockfallTab.jsx";
@@ -42,6 +43,8 @@ const DashboardContext = createContext<{
   setSelectedLocation: (location: string) => void;
   realtimeWeather: any;
   setRealtimeWeather: (weather: any) => void;
+  aiAccuracy: number | null;
+  setAiAccuracy: (accuracy: number | null) => void;
   refreshAll: () => void;
 } | null>(null);
 
@@ -56,6 +59,18 @@ export const useDashboard = () => {
 export const Dashboard = ({ onBackToHome }: { onBackToHome?: () => void }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  
+  // Handle navigation to PINN tab with auto-analysis
+  const handleNavigateToPINN = () => {
+    if (!selectedLocation) return;
+    setActiveTab("pinn");
+    // Set a flag to trigger auto-analysis in PINN tab
+    setTimeout(() => {
+      const autoAnalysisEvent = new CustomEvent('auto-pinn-analysis');
+      window.dispatchEvent(autoAnalysisEvent);
+    }, 500); // Small delay to ensure tab is rendered
+  };
   
   // React-based state management instead of localStorage
   const [rockfallNotifications, setRockfallNotifications] = useState({
@@ -71,6 +86,7 @@ export const Dashboard = ({ onBackToHome }: { onBackToHome?: () => void }) => {
   const [monitoringData, setMonitoringData] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState("");
   const [realtimeWeather, setRealtimeWeather] = useState(null);
+  const [aiAccuracy, setAiAccuracy] = useState<number | null>(null);
 
   // Refresh all notifications and data across all tabs
   const refreshAllNotifications = async () => {
@@ -89,6 +105,7 @@ export const Dashboard = ({ onBackToHome }: { onBackToHome?: () => void }) => {
     setMonitoringData(null);
     setSelectedLocation("");
     setRealtimeWeather(null);
+    setAiAccuracy(null);
     
     // Clear any remaining localStorage items
     localStorage.removeItem('rockfallNotifications');
@@ -116,13 +133,15 @@ export const Dashboard = ({ onBackToHome }: { onBackToHome?: () => void }) => {
     setSelectedLocation,
     realtimeWeather,
     setRealtimeWeather,
+    aiAccuracy,
+    setAiAccuracy,
     refreshAll: refreshAllNotifications
   };
 
   const renderActiveTab = () => {
     switch (activeTab) {
       case "overview":
-        return <OverviewTab />;
+        return <OverviewTab onNavigateToPINN={handleNavigateToPINN} />;
       case "chatbot":
         return <Chatbot />;
       case "pinn":
@@ -136,20 +155,23 @@ export const Dashboard = ({ onBackToHome }: { onBackToHome?: () => void }) => {
       case "graphical":
         return <GraphicalDataPanel />;
       default:
-        return <OverviewTab />;
+        return <OverviewTab onNavigateToPINN={handleNavigateToPINN} />;
     }
   };
 
   return (
     <DashboardContext.Provider value={contextValue}>
       <div className="flex h-screen bg-background">
-        <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <DashboardSidebar 
+          activeTab={activeTab} 
+          onTabChange={setActiveTab}
+          onSettingsClick={() => setIsSettingsOpen(true)}
+        />
         <main className="flex-1 overflow-auto">
         {/* Header with theme toggle and logout */}
         <div className="glass-nav p-3 sm:p-4 border-b border-border/10 sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-foreground/60" />
                 <Select value={selectedLocation} onValueChange={setSelectedLocation}>
@@ -189,6 +211,11 @@ export const Dashboard = ({ onBackToHome }: { onBackToHome?: () => void }) => {
           </div>
         </main>
       </div>
+      
+      <SettingsModal 
+        open={isSettingsOpen} 
+        onOpenChange={setIsSettingsOpen} 
+      />
     </DashboardContext.Provider>
   );
 };

@@ -170,10 +170,7 @@ export const DigitalTwinTab = () => {
             <Activity className="h-3 w-3 mr-1" />
             Real-time Sync
           </Badge>
-          <Button variant="hero">
-            <Play className="h-4 w-4 mr-2" />
-            Start Simulation
-          </Button>
+     
         </div>
       </div>
 
@@ -217,7 +214,7 @@ export const DigitalTwinTab = () => {
                 
                 {/* Mine Name Overlay - Full Width Top */}
                 <div className="absolute top-0 left-0 right-0 z-10">
-                  <div className="bg-white backdrop-blur-sm text-gray-800 border-b border-gray-200 px-6 py-2 flex items-center space-x-3">
+                  <div className="bg-card backdrop-blur-sm text-card-foreground border-b border-border px-6 py-2 flex items-center space-x-3">
                     <MapPin className="h-6 w-6 text-primary flex-shrink-0" />
                     <span className="text-lg font-semibold tracking-wide">
                       {mineData.find(m => m.id.toString() === selectedLocation)?.name}
@@ -261,7 +258,7 @@ export const DigitalTwinTab = () => {
                 
                 {/* Mine Name Overlay - Full Width Top */}
                 <div className="absolute top-0 left-0 right-0 z-10">
-                  <div className="bg-white backdrop-blur-sm text-gray-800 border-b border-gray-200 px-6 py-2 flex items-center space-x-3">
+                  <div className="bg-card backdrop-blur-sm text-card-foreground border-b border-border px-6 py-2 flex items-center space-x-3">
                     <MapPin className="h-6 w-6 text-primary flex-shrink-0" />
                     <span className="text-lg font-semibold tracking-wide">
                       {mineData.find(m => m.id.toString() === selectedLocation)?.name}
@@ -332,7 +329,7 @@ export const DigitalTwinTab = () => {
                 
                 {/* Mine Name Overlay - Full Width Top */}
                 <div className="absolute top-0 left-0 right-0 z-10">
-                  <div className="bg-white backdrop-blur-sm text-gray-800 border-b border-gray-200 px-6 py-2 flex items-center space-x-3">
+                  <div className="bg-card backdrop-blur-sm text-card-foreground border-b border-border px-6 py-2 flex items-center space-x-3">
                     <MapPin className="h-6 w-6 text-primary flex-shrink-0" />
                     <span className="text-lg font-semibold tracking-wide">
                       {selectedLocation 
@@ -445,7 +442,7 @@ export const DigitalTwinTab = () => {
       </Card>
 
       {/* Twin Data & Controls */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Real-time Data */}
         <Card className="glass-card">
           <CardHeader>
@@ -541,7 +538,7 @@ export const DigitalTwinTab = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              <Button variant="hero" className="w-full">
+              <Button variant="glass" className="w-full hover:bg-primary/20 hover:border-primary/50 transition-all duration-300">
                 <Play className="h-4 w-4 mr-2" />
                 Run Stability Analysis
               </Button>

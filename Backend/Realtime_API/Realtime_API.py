@@ -11,15 +11,18 @@ API_KEY = os.getenv("OWM_API_KEY")
 if not API_KEY:
     raise ValueError("❌ Missing OWM_API_KEY in .env file")
 
-# --- Mine Data (No Name Column) ---
+# --- Mine Data (with Geotechnical Parameters) ---
 MINE_DATA = [
     {
         "id": 1, "latitude": 18.7100, "longitude": 81.0500,
-        "area_acres": 400, "sensors": 320, "active_sensors": 315,
+        "area_acres": 400, "sensors": 315, "active_sensors": 315,
         "sync_accuracy": "97.8%", "update_rate": "2.4 ms",
         "vertices": "1.9M", "triangles": "1.4M", "resolution": "1.1 cm³",
         "last_update": "2 min ago", "render_time": "15.9 ms",
-        "memory_usage": "720 MB", "gpu_load": "31%"
+        "memory_usage": "720 MB", "gpu_load": "31%",
+        "height_m": 42, "cohesion_kpa": 23, "friction_angle_deg": 31,
+        "unit_weight_kn_m3": 21, "slope_angle_deg": 37,
+        "water_depth_ratio": 0.14, "fos": 1.45
     },
     {
         "id": 2, "latitude": 20.5610, "longitude": 81.0700,
@@ -27,7 +30,10 @@ MINE_DATA = [
         "sync_accuracy": "96.3%", "update_rate": "3.2 ms",
         "vertices": "1.4M", "triangles": "1.1M", "resolution": "1.3 cm³",
         "last_update": "5 min ago", "render_time": "14.8 ms",
-        "memory_usage": "640 MB", "gpu_load": "27%"
+        "memory_usage": "640 MB", "gpu_load": "27%",
+        "height_m": 35, "cohesion_kpa": 22, "friction_angle_deg": 30,
+        "unit_weight_kn_m3": 20, "slope_angle_deg": 36,
+        "water_depth_ratio": 0.13, "fos": 1.38
     },
     {
         "id": 3, "latitude": 20.6697, "longitude": 79.2964,
@@ -35,7 +41,10 @@ MINE_DATA = [
         "sync_accuracy": "98.6%", "update_rate": "2.1 ms",
         "vertices": "3.2M", "triangles": "2.5M", "resolution": "0.9 cm³",
         "last_update": "1 min ago", "render_time": "18.2 ms",
-        "memory_usage": "980 MB", "gpu_load": "41%"
+        "memory_usage": "980 MB", "gpu_load": "41%",
+        "height_m": 55, "cohesion_kpa": 28, "friction_angle_deg": 33,
+        "unit_weight_kn_m3": 22, "slope_angle_deg": 39,
+        "water_depth_ratio": 0.16, "fos": 1.62
     },
     {
         "id": 4, "latitude": 16.1972, "longitude": 76.6602,
@@ -43,7 +52,10 @@ MINE_DATA = [
         "sync_accuracy": "95.9%", "update_rate": "3.9 ms",
         "vertices": "2.0M", "triangles": "1.5M", "resolution": "1.2 cm³",
         "last_update": "7 min ago", "render_time": "16.3 ms",
-        "memory_usage": "760 MB", "gpu_load": "32%"
+        "memory_usage": "760 MB", "gpu_load": "32%",
+        "height_m": 44, "cohesion_kpa": 24, "friction_angle_deg": 32,
+        "unit_weight_kn_m3": 21, "slope_angle_deg": 38,
+        "water_depth_ratio": 0.15, "fos": 1.49
     },
     {
         "id": 5, "latitude": 22.6500, "longitude": 86.3500,
@@ -51,7 +63,10 @@ MINE_DATA = [
         "sync_accuracy": "98.1%", "update_rate": "1.8 ms",
         "vertices": "3.1M", "triangles": "2.4M", "resolution": "1.0 cm³",
         "last_update": "3 min ago", "render_time": "17.1 ms",
-        "memory_usage": "940 MB", "gpu_load": "39%"
+        "memory_usage": "940 MB", "gpu_load": "39%",
+        "height_m": 53, "cohesion_kpa": 27, "friction_angle_deg": 33,
+        "unit_weight_kn_m3": 22, "slope_angle_deg": 39,
+        "water_depth_ratio": 0.15, "fos": 1.58
     },
     {
         "id": 6, "latitude": 23.7406, "longitude": 86.4146,
@@ -59,7 +74,10 @@ MINE_DATA = [
         "sync_accuracy": "96.7%", "update_rate": "2.9 ms",
         "vertices": "1.8M", "triangles": "1.3M", "resolution": "1.2 cm³",
         "last_update": "6 min ago", "render_time": "15.5 ms",
-        "memory_usage": "710 MB", "gpu_load": "30%"
+        "memory_usage": "710 MB", "gpu_load": "30%",
+        "height_m": 41, "cohesion_kpa": 23, "friction_angle_deg": 31,
+        "unit_weight_kn_m3": 21, "slope_angle_deg": 37,
+        "water_depth_ratio": 0.14, "fos": 1.42
     },
     {
         "id": 7, "latitude": 27.9833, "longitude": 75.7833,
@@ -67,7 +85,10 @@ MINE_DATA = [
         "sync_accuracy": "97.2%", "update_rate": "4.3 ms",
         "vertices": "1.5M", "triangles": "1.2M", "resolution": "1.3 cm³",
         "last_update": "8 min ago", "render_time": "14.9 ms",
-        "memory_usage": "650 MB", "gpu_load": "28%"
+        "memory_usage": "650 MB", "gpu_load": "28%",
+        "height_m": 34, "cohesion_kpa": 21, "friction_angle_deg": 30,
+        "unit_weight_kn_m3": 20, "slope_angle_deg": 36,
+        "water_depth_ratio": 0.13, "fos": 1.36
     },
     {
         "id": 8, "latitude": 22.3545, "longitude": 82.6872,
@@ -75,7 +96,10 @@ MINE_DATA = [
         "sync_accuracy": "99.1%", "update_rate": "1.6 ms",
         "vertices": "2.6M", "triangles": "2.0M", "resolution": "1.0 cm³",
         "last_update": "4 min ago", "render_time": "17.6 ms",
-        "memory_usage": "880 MB", "gpu_load": "36%"
+        "memory_usage": "880 MB", "gpu_load": "36%",
+        "height_m": 49, "cohesion_kpa": 26, "friction_angle_deg": 32,
+        "unit_weight_kn_m3": 22, "slope_angle_deg": 38,
+        "water_depth_ratio": 0.15, "fos": 1.55
     },
     {
         "id": 9, "latitude": 20.0681, "longitude": 79.3583,
@@ -83,7 +107,10 @@ MINE_DATA = [
         "sync_accuracy": "95.8%", "update_rate": "3.5 ms",
         "vertices": "2.0M", "triangles": "1.5M", "resolution": "1.2 cm³",
         "last_update": "9 min ago", "render_time": "16.1 ms",
-        "memory_usage": "750 MB", "gpu_load": "33%"
+        "memory_usage": "750 MB", "gpu_load": "33%",
+        "height_m": 43, "cohesion_kpa": 24, "friction_angle_deg": 31,
+        "unit_weight_kn_m3": 21, "slope_angle_deg": 37,
+        "water_depth_ratio": 0.14, "fos": 1.47
     },
     {
         "id": 10, "latitude": 24.4766, "longitude": 74.8726,
@@ -91,7 +118,10 @@ MINE_DATA = [
         "sync_accuracy": "96.9%", "update_rate": "2.7 ms",
         "vertices": "1.9M", "triangles": "1.4M", "resolution": "1.1 cm³",
         "last_update": "10 min ago", "render_time": "15.7 ms",
-        "memory_usage": "725 MB", "gpu_load": "31%"
+        "memory_usage": "725 MB", "gpu_load": "31%",
+        "height_m": 42, "cohesion_kpa": 23, "friction_angle_deg": 31,
+        "unit_weight_kn_m3": 21, "slope_angle_deg": 37,
+        "water_depth_ratio": 0.14, "fos": 1.44
     }
 ]
 
@@ -101,13 +131,7 @@ def find_mine_data(lat: float, lon: float):
     for mine in MINE_DATA:
         if round(mine["latitude"], 4) == round(lat, 4) and round(mine["longitude"], 4) == round(lon, 4):
             return mine
-    # Return empty/defaults if not found
-    return {
-        "id": None, "area_acres": None, "sensors": None, "active_sensors": None,
-        "sync_accuracy": None, "update_rate": None, "vertices": None, "triangles": None,
-        "resolution": None, "last_update": None, "render_time": None,
-        "memory_usage": None, "gpu_load": None
-    }
+    return {key: None for key in MINE_DATA[0].keys()}
 
 
 def get_weather(lat: float = None, lon: float = None):
@@ -128,7 +152,6 @@ def get_weather(lat: float = None, lon: float = None):
             "appid": API_KEY,
             "units": "metric"
         }
-
         owm_resp = requests.get(owm_url, params=owm_params, timeout=5)
         owm_resp.raise_for_status()
         owm_data = owm_resp.json()
@@ -156,7 +179,6 @@ def get_weather(lat: float = None, lon: float = None):
             "forecast_days": 7,
             "timezone": "auto"
         }
-
         om_resp = requests.get(om_url, params=om_params, timeout=5)
         om_resp.raise_for_status()
         om_data = om_resp.json()
@@ -175,11 +197,9 @@ def get_weather(lat: float = None, lon: float = None):
             "past_days": 1,
             "min_magnitude": 2
         }
-
         eq_resp = requests.get(eq_url, params=eq_params, timeout=5)
         eq_resp.raise_for_status()
         eq_data = eq_resp.json()
-
         earthquakes = eq_data.get("earthquakes", [])
         if earthquakes:
             nearest_eq = earthquakes[0]
@@ -204,7 +224,7 @@ def get_weather(lat: float = None, lon: float = None):
         "winddirection_deg": winddirection,
         "vibration_mm_s": vibration,
         "rainfall_7d_mm": total_rain_7d,
-        **mine_data  # inject new mine factors
+        **mine_data
     }
 
 

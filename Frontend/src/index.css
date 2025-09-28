@@ -7,7 +7,7 @@
 @layer base {
   :root {
     /* Core Colors - Light Industrial Palette (HSL) */
-    --background: 210 20% 98%;          /* Off-white with cool tint */
+    --background: 0 0% 100%;             /* Pure white background */
     --foreground: 215 25% 20%;          /* Steel charcoal */
 
     --card: 0 0% 100%;                   /* Pure white cards */
@@ -43,9 +43,9 @@
     --glass-accent: hsla(210, 90%, 46%, 0.1);
     
     /* Gradients */
-    --gradient-hero: linear-gradient(180deg, hsl(210, 20%, 99%) 0%, hsl(210, 16%, 96%) 100%);
-    --gradient-card: linear-gradient(145deg, hsla(0, 0%, 100%, 0.8), hsla(210, 16%, 94%, 0.6));
-    --gradient-glow: radial-gradient(circle at 50% 50%, hsla(210, 90%, 46%, 0.15) 0%, transparent 70%);
+    --gradient-hero: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 100%) 100%);
+    --gradient-card: linear-gradient(145deg, hsla(0, 0%, 100%, 0.9), hsla(0, 0%, 98%, 0.8));
+    --gradient-glow: radial-gradient(circle at 50% 50%, hsla(210, 90%, 46%, 0.05) 0%, transparent 70%);
     
     /* Shadows */
     --shadow-neon-aqua: 0 0 12px hsla(210, 90%, 46%, 0.25), 0 0 24px hsla(210, 90%, 46%, 0.12);
@@ -133,7 +133,7 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    background: var(--gradient-hero);
+    background: hsl(var(--background));
     min-height: 100vh;
   }
 
@@ -181,7 +181,7 @@
 
   /* Background Effects */
   .particle-bg {
-    background: linear-gradient(135deg, hsla(210, 20%, 99%, 0.8) 0%, hsla(210, 16%, 96%, 0.9) 100%),
+    background: linear-gradient(135deg, hsla(0, 0%, 100%, 0.95) 0%, hsla(0, 0%, 100%, 0.98) 100%),
                 url('/mining-background1.jpg');
     background-size: cover;
     background-position: center;
@@ -196,9 +196,9 @@
   .mining-overlay {
     background: linear-gradient(
       135deg,
-      hsla(210, 20%, 99%, 0.95) 0%,
-      hsla(210, 16%, 96%, 0.95) 50%,
-      hsla(210, 16%, 94%, 0.95) 100%
+      hsla(0, 0%, 100%, 0.98) 0%,
+      hsla(0, 0%, 100%, 0.98) 50%,
+      hsla(0, 0%, 100%, 0.98) 100%
     ),
     url('/mining-background1.jpg');
     background-size: cover;

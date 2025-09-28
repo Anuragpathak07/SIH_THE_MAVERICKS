@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 interface SidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  onSettingsClick: () => void;
 }
 
 const navigationItems = [
@@ -30,7 +31,7 @@ const navigationItems = [
   { id: "graphical", label: "Graphical Data", icon: Activity },
 ];
 
-export const DashboardSidebar = ({ activeTab, onTabChange }: SidebarProps) => {
+export const DashboardSidebar = ({ activeTab, onTabChange, onSettingsClick }: SidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
@@ -47,7 +48,7 @@ export const DashboardSidebar = ({ activeTab, onTabChange }: SidebarProps) => {
                 <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-base sm:text-lg font-semibold text-foreground">MineGuard</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-foreground">GeoSentinel</h2>
                 <p className="text-xs text-foreground/60">AI Dashboard</p>
               </div>
             </div>
@@ -117,7 +118,12 @@ export const DashboardSidebar = ({ activeTab, onTabChange }: SidebarProps) => {
               </div>
             </div>
 
-            <Button variant="outline" size="sm" className="w-full">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full hover:bg-primary/10 hover:border-primary/50 transition-all duration-300"
+              onClick={onSettingsClick}
+            >
               <Settings className="h-3 w-3 mr-2" />
               <span className="text-xs sm:text-sm">Settings</span>
             </Button>

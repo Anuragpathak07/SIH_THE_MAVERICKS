@@ -6,11 +6,13 @@ import os
 import tempfile
 import subprocess
 import uuid
+from fastapi import Query
 
-# Chatbot and ML imports
+# Chatbot , ML imports and Realtime API
 from Chatbot.Chatbot import process_user_query
 from Master_LLM.ML_Models.Single_frame.genai import check_frame_for_anomaly
 from Master_LLM.ML_Models.Video.genai import process_video_and_summarize
+from Realtime_API.Realtime_API import get_weather
 
 
 app = FastAPI(title="Gemini Mine Safety Bot API")
@@ -122,6 +124,16 @@ async def predict_frame(file: UploadFile = File(...)):
 
     except Exception as e:
         return {"success": False, "error": f"❌ Frame prediction failed: {e}"}
+
+# ---- Real time data Endpoint ----
+@app.get("/realtimedata")
+async def real_time_data(lat: float = Query(None), lon: float = Query(None)):
+    """
+    Get current temperature and 7-day rainfall forecast.
+    If lat/lon not provided, defaults to Gokul Open Pit Mine, Nagpur.
+    """
+    data = get_weather(lat, lon)
+    return data
 
 # ---- Curl Endpoint ----
 items = ["apple", "banana", "cherry", "date"]

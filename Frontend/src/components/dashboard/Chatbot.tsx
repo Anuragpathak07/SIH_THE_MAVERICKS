@@ -104,7 +104,7 @@ export const Chatbot = () => {
       console.error('Error:', error);
       const errorMessage: Message = {
         id: messages.length + 3,
-        text: "Sorry, I'm having trouble connecting to the server. Please make sure your FastAPI backend is running on localhost:8000 and try again.",
+        text: "Sorry, I'm having trouble connecting to the server. Please check your internet connection and try again.",
         sender: 'bot',
         timestamp: new Date()
       };
@@ -112,7 +112,7 @@ export const Chatbot = () => {
       
       toast({
         title: "Connection Error",
-        description: "Unable to connect to the AI backend. Please check if the server is running on localhost:8000.",
+        description: "Unable to connect to the AI backend. Please check your connection.",
         variant: "destructive",
       });
     } finally {

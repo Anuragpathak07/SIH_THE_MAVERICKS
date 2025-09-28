@@ -19,7 +19,31 @@ import {
 import { useDashboard } from "../Dashboard";
 
 export const OverviewTab = () => {
-  const { rockfallNotifications } = useDashboard();
+  const { rockfallNotifications, selectedLocation } = useDashboard();
+
+  // Sensor data by location
+  const sensorData = {
+    "1": { active: 247, total: 252 }, // Bailadila Iron Ore Mine
+    "2": { active: 189, total: 195 }, // Dalli-Rajhara Mine
+    "3": { active: 156, total: 160 }, // Gokul Open Pit Mine
+    "4": { active: 98, total: 102 },  // Hutti Gold Mine
+    "5": { active: 134, total: 140 }, // Jaduguda Mine
+    "6": { active: 278, total: 285 }, // Jharia Coal Mine
+    "7": { active: 167, total: 172 }, // Khetri Copper Mine
+    "8": { active: 234, total: 240 }, // Korba Coal Mine
+    "9": { active: 89, total: 94 },   // Majri Mine
+    "10": { active: 123, total: 128 } // Neemuch Cement Mine
+  };
+
+  const getCurrentSensorData = () => {
+    if (!selectedLocation) {
+      return { active: "__", total: "__" };
+    }
+    return sensorData[selectedLocation] || { active: "__", total: "__" };
+  };
+
+  const currentSensors = getCurrentSensorData();
+  const isLocationSelected = Boolean(selectedLocation);
 
   const getRiskLevelColor = (riskLevel) => {
     switch (riskLevel?.toLowerCase()) {
@@ -66,35 +90,35 @@ export const OverviewTab = () => {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="glass-card border-primary/20">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-foreground/70 flex items-center">
-              <Shield className="h-4 w-4 mr-2 text-primary" />
-              Safety Score
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-primary">98.7%</div>
-            <p className="text-xs text-foreground/60 mt-1">+2.1% from last week</p>
-            <Progress value={98.7} className="mt-3 h-2 bg-neutral-200" />
-          </CardContent>
-        </Card>
+        
 
         <Card className="glass-card border-secondary/20">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-green-600 flex items-center">
-              <Activity className="h-4 w-4 mr-2 text-green-600" />
+            <CardTitle className="text-sm font-medium text-foreground/70 flex items-center">
+              <Activity className={`h-4 w-4 mr-2 ${
+                isLocationSelected ? 'text-green-600' : 'text-primary'
+              }`} />
               Active Sensors
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-secondary">247</div>
-            <p className="text-xs text-foreground/60 mt-1">of 252 total sensors</p>
-            <Progress value={98} className="mt-3 h-2 bg-neutral-200" />
+            <div className={`text-3xl font-bold ${
+              isLocationSelected ? 'text-green-600' : 'text-primary'
+            }`}>
+              {currentSensors.active}
+            </div>
+            <p className="text-xs text-foreground/60 mt-1">of {currentSensors.total} total sensors</p>
+            <Progress 
+              value={
+                currentSensors.active === "__" ? 0 : 
+                Math.round((currentSensors.active / currentSensors.total) * 100)
+              } 
+              className="mt-3 h-2 bg-neutral-200" 
+            />
           </CardContent>
         </Card>
-
-        <Card className="glass-card border-primary/20">
+        
+        <Card className="glass-card border-secondary/20">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-foreground/70 flex items-center">
               <Brain className="h-4 w-4 mr-2 text-primary" />
@@ -107,21 +131,82 @@ export const OverviewTab = () => {
             <Progress value={99.3} className="mt-3 h-2 bg-neutral-200" />
           </CardContent>
         </Card>
-
-        <Card className="glass-card border-border/20">
+        <Card className={`glass-card border-secondary/20`}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-foreground/70 flex items-center">
-              <AlertTriangle className="h-4 w-4 mr-2 text-yellow-500" />
-              Risk Level
+            <CardTitle className={`text-sm font-medium text-foreground/70 flex items-center`}>
+              <TrendingDown className={`h-4 w-4 mr-2 ${
+                rockfallNotifications.trajectory ? 
+                  rockfallNotifications.trajectory.toLowerCase() === 'unstable' ? 'text-red-600' :
+                  rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 'text-orange-600' :
+                  'text-green-600' : 'text-primary'
+              }`} />
+              Slope Stability
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-secondary">Low</div>
-            <p className="text-xs text-foreground/60 mt-1">Stable conditions</p>
-            <Progress value={15} className="mt-3 h-2 bg-neutral-200" />
+            <div className={`text-3xl font-bold ${
+              rockfallNotifications.trajectory ? 
+                rockfallNotifications.trajectory.toLowerCase() === 'unstable' ? 'text-red-600' :
+                rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 'text-orange-600' :
+                'text-green-600' : 'text-primary'
+            }`}>
+              {rockfallNotifications.trajectory || 'Stable'}
+            </div>
+            <p className="text-xs text-foreground/60 mt-1">
+              {rockfallNotifications.trajectory ? 'Live camera analysis' : 'Normal conditions'}
+            </p>
+            <Progress 
+              value={
+                rockfallNotifications.trajectory ? 
+                  rockfallNotifications.trajectory.toLowerCase() === 'unstable' ? 25 :
+                  rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 60 : 85 : 85
+              } 
+              className="mt-3 h-2 bg-neutral-200" 
+            />
+          </CardContent>
+        </Card>
+        <Card className={`glass-card border-secondary/20`}>
+          <CardHeader className="pb-3">
+            <CardTitle className={`text-sm font-medium text-foreground/70 flex items-center`}>
+              <AlertTriangle className={`h-4 w-4 mr-2 ${
+                rockfallNotifications.riskLevel ? 
+                  rockfallNotifications.riskLevel.toLowerCase() === 'critical' ? 'text-red-600' :
+                  rockfallNotifications.riskLevel.toLowerCase() === 'high' ? 'text-orange-600' :
+                  rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 'text-yellow-600' :
+                  'text-green-600' : 'text-primary'
+              }`} />
+              Risk Level
+              
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={`text-3xl font-bold text-blue-600 ${
+              rockfallNotifications.riskLevel ? 
+                rockfallNotifications.riskLevel.toLowerCase() === 'critical' ? 'text-red-600' :
+                rockfallNotifications.riskLevel.toLowerCase() === 'high' ? 'text-orange-600' :
+                rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 'text-yellow-600' :
+                'text-green-600' : 'text-primary'
+            }`}>
+              {rockfallNotifications.riskLevel || 'Low'}
+            </div>
+            <p className="text-xs text-foreground/60 mt-1">
+              {rockfallNotifications.riskLevel ? 'Live camera detection' : 'Stable conditions'}
+            </p>
+            <Progress 
+              value={
+                rockfallNotifications.riskLevel ? 
+                  rockfallNotifications.riskLevel.toLowerCase() === 'critical' ? 95 :
+                  rockfallNotifications.riskLevel.toLowerCase() === 'high' ? 75 :
+                  rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 50 : 25 : 15
+              } 
+              className="mt-3 h-2 bg-neutral-200" 
+            />
           </CardContent>
         </Card>
       </div>
+
+
+      
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -134,85 +219,153 @@ export const OverviewTab = () => {
                 Live Alerts & Notifications
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {/* Rockfall Alerts */}
               {(rockfallNotifications.riskLevel || rockfallNotifications.rockSize || rockfallNotifications.trajectory || rockfallNotifications.recommendations.length > 0) && (
                 <>
                   {/* Risk Level Alert */}
                   {rockfallNotifications.riskLevel && (
-                    <div className={`flex items-center space-x-4 p-4 rounded-2xl border ${getRiskLevelColor(rockfallNotifications.riskLevel)}`}>
-                      <div className={`p-2 rounded-full ${rockfallNotifications.riskLevel.toLowerCase() === 'critical' ? 'bg-red-100' : rockfallNotifications.riskLevel.toLowerCase() === 'high' ? 'bg-orange-100' : rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 'bg-yellow-100' : 'bg-green-100'}`}>
-                        <Shield className={`h-4 w-4 ${rockfallNotifications.riskLevel.toLowerCase() === 'critical' ? 'text-red-600' : rockfallNotifications.riskLevel.toLowerCase() === 'high' ? 'text-orange-600' : rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 'text-yellow-600' : 'text-green-600'}`} />
+                    <div className={`flex items-center justify-between p-4 rounded-xl ${
+                      rockfallNotifications.riskLevel.toLowerCase() === 'critical' ? 'bg-red-50 border border-red-100' :
+                      rockfallNotifications.riskLevel.toLowerCase() === 'high' ? 'bg-orange-50 border border-orange-100' :
+                      rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 'bg-yellow-50 border border-yellow-100' :
+                      'bg-green-50 border border-green-100'
+                    }`}>
+                      <div className="flex items-center space-x-3">
+                        <div className={`p-2 rounded-full ${
+                          rockfallNotifications.riskLevel.toLowerCase() === 'critical' ? 'bg-red-100' :
+                          rockfallNotifications.riskLevel.toLowerCase() === 'high' ? 'bg-orange-100' :
+                          rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 'bg-yellow-100' :
+                          'bg-green-100'
+                        }`}>
+                          <Shield className={`h-4 w-4 ${
+                            rockfallNotifications.riskLevel.toLowerCase() === 'critical' ? 'text-red-600' :
+                            rockfallNotifications.riskLevel.toLowerCase() === 'high' ? 'text-orange-600' :
+                            rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 'text-yellow-600' :
+                            'text-green-600'
+                          }`} />
+                        </div>
+                        <div>
+                          <h4 className={`font-medium ${
+                            rockfallNotifications.riskLevel.toLowerCase() === 'critical' ? 'text-red-800' :
+                            rockfallNotifications.riskLevel.toLowerCase() === 'high' ? 'text-orange-800' :
+                            rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 'text-yellow-800' :
+                            'text-green-800'
+                          }`}>Rockfall Risk: {rockfallNotifications.riskLevel}</h4>
+                          <p className={`text-sm ${
+                            rockfallNotifications.riskLevel.toLowerCase() === 'critical' ? 'text-red-600' :
+                            rockfallNotifications.riskLevel.toLowerCase() === 'high' ? 'text-orange-600' :
+                            rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 'text-yellow-600' :
+                            'text-green-600'
+                          }`}>Live camera analysis detected {rockfallNotifications.riskLevel.toLowerCase()} risk level</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium">Rockfall Risk: {rockfallNotifications.riskLevel}</h4>
-                        <p className="text-sm opacity-80">Live camera analysis detected {rockfallNotifications.riskLevel.toLowerCase()} risk level</p>
-                      </div>
-                      <Badge variant="outline" className="border-current">
-                        Live
-                      </Badge>
+                      <span className={`text-xs font-medium px-2 py-1 rounded ${
+                        rockfallNotifications.riskLevel.toLowerCase() === 'critical' ? 'bg-red-100 text-red-600' :
+                        rockfallNotifications.riskLevel.toLowerCase() === 'high' ? 'bg-orange-100 text-orange-600' :
+                        rockfallNotifications.riskLevel.toLowerCase() === 'medium' ? 'bg-yellow-100 text-yellow-600' :
+                        'bg-green-100 text-green-600'
+                      }`}>Live</span>
                     </div>
                   )}
 
                   {/* Rock Size Alert */}
                   {rockfallNotifications.rockSize && (
-                    <div className={`flex items-center space-x-4 p-4 rounded-2xl border ${getRockSizeColor(rockfallNotifications.rockSize)}`}>
-                      <div className={`p-2 rounded-full ${rockfallNotifications.rockSize.toLowerCase() === 'large' ? 'bg-red-100' : rockfallNotifications.rockSize.toLowerCase() === 'medium' ? 'bg-purple-100' : 'bg-blue-100'}`}>
-                        <Mountain className={`h-4 w-4 ${rockfallNotifications.rockSize.toLowerCase() === 'large' ? 'text-red-600' : rockfallNotifications.rockSize.toLowerCase() === 'medium' ? 'text-purple-600' : 'text-blue-600'}`} />
+                    <div className={`flex items-center justify-between p-4 rounded-xl ${
+                      rockfallNotifications.rockSize.toLowerCase() === 'large' ? 'bg-red-50 border border-red-100' :
+                      rockfallNotifications.rockSize.toLowerCase() === 'medium' ? 'bg-yellow-50 border border-yellow-100' :
+                      'bg-blue-50 border border-blue-100'
+                    }`}>
+                      <div className="flex items-center space-x-3">
+                        <div className={`p-2 rounded-full ${
+                          rockfallNotifications.rockSize.toLowerCase() === 'large' ? 'bg-red-100' :
+                          rockfallNotifications.rockSize.toLowerCase() === 'medium' ? 'bg-yellow-100' :
+                          'bg-blue-100'
+                        }`}>
+                          <Mountain className={`h-4 w-4 ${
+                            rockfallNotifications.rockSize.toLowerCase() === 'large' ? 'text-red-600' :
+                            rockfallNotifications.rockSize.toLowerCase() === 'medium' ? 'text-yellow-600' :
+                            'text-blue-600'
+                          }`} />
+                        </div>
+                        <div>
+                          <h4 className={`font-medium ${
+                            rockfallNotifications.rockSize.toLowerCase() === 'large' ? 'text-red-800' :
+                            rockfallNotifications.rockSize.toLowerCase() === 'medium' ? 'text-yellow-800' :
+                            'text-blue-800'
+                          }`}>Rock Size Detection</h4>
+                          <p className={`text-sm ${
+                            rockfallNotifications.rockSize.toLowerCase() === 'large' ? 'text-red-600' :
+                            rockfallNotifications.rockSize.toLowerCase() === 'medium' ? 'text-yellow-600' :
+                            'text-blue-600'
+                          }`}>Detected {rockfallNotifications.rockSize.toLowerCase()} rock formation</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium">Rock Size: {rockfallNotifications.rockSize}</h4>
-                        <p className="text-sm opacity-80">Detected {rockfallNotifications.rockSize.toLowerCase()} rock formation</p>
-                      </div>
-                      <Badge variant="outline" className="border-current">
-                        Active
-                      </Badge>
+                      <span className={`text-xs font-medium px-2 py-1 rounded ${
+                        rockfallNotifications.rockSize.toLowerCase() === 'large' ? 'bg-red-100 text-red-600' :
+                        rockfallNotifications.rockSize.toLowerCase() === 'medium' ? 'bg-yellow-100 text-yellow-600' :
+                        'bg-blue-100 text-blue-600'
+                      }`}>Active</span>
                     </div>
                   )}
 
                   {/* Trajectory Alert */}
                   {rockfallNotifications.trajectory && (
-                    <div className={`flex items-center space-x-4 p-4 rounded-2xl border ${getTrajectoryColor(rockfallNotifications.trajectory)}`}>
-                      <div className={`p-2 rounded-full ${rockfallNotifications.trajectory.toLowerCase() === 'unstable' ? 'bg-red-100' : rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 'bg-yellow-100' : 'bg-green-100'}`}>
-                        <TrendingDown className={`h-4 w-4 ${rockfallNotifications.trajectory.toLowerCase() === 'unstable' ? 'text-red-600' : rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 'text-yellow-600' : 'text-green-600'}`} />
+                    <div className={`flex items-center justify-between p-4 rounded-xl ${
+                      rockfallNotifications.trajectory.toLowerCase() === 'unstable' ? 'bg-red-50 border border-red-100' :
+                      rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 'bg-yellow-50 border border-yellow-100' :
+                      'bg-green-50 border border-green-100'
+                    }`}>
+                      <div className="flex items-center space-x-3">
+                        <div className={`p-2 rounded-full ${
+                          rockfallNotifications.trajectory.toLowerCase() === 'unstable' ? 'bg-red-100' :
+                          rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 'bg-yellow-100' :
+                          'bg-green-100'
+                        }`}>
+                          <TrendingDown className={`h-4 w-4 ${
+                            rockfallNotifications.trajectory.toLowerCase() === 'unstable' ? 'text-red-600' :
+                            rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 'text-yellow-600' :
+                            'text-green-600'
+                          }`} />
+                        </div>
+                        <div>
+                          <h4 className={`font-medium ${
+                            rockfallNotifications.trajectory.toLowerCase() === 'unstable' ? 'text-red-800' :
+                            rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 'text-yellow-800' :
+                            'text-green-800'
+                          }`}>Slope Stability: {rockfallNotifications.trajectory}</h4>
+                          <p className={`text-sm ${
+                            rockfallNotifications.trajectory.toLowerCase() === 'unstable' ? 'text-red-600' :
+                            rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 'text-yellow-600' :
+                            'text-green-600'
+                          }`}>Current trajectory analysis complete</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium">Trajectory: {rockfallNotifications.trajectory}</h4>
-                        <p className="text-sm opacity-80">Current slope stability assessment</p>
-                      </div>
-                      <Badge variant="outline" className="border-current">
-                        Monitoring
-                      </Badge>
+                      <span className={`text-xs font-medium px-2 py-1 rounded ${
+                        rockfallNotifications.trajectory.toLowerCase() === 'unstable' ? 'bg-red-100 text-red-600' :
+                        rockfallNotifications.trajectory.toLowerCase() === 'moderate' ? 'bg-yellow-100 text-yellow-600' :
+                        'bg-green-100 text-green-600'
+                      }`}>Now</span>
                     </div>
                   )}
 
                   {/* Recommendations Alert */}
                   {rockfallNotifications.recommendations.length > 0 && (
-                    <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200">
-                      <div className="flex items-start space-x-3">
+                    <div className="flex items-center justify-between p-4 rounded-xl bg-blue-50 border border-blue-100">
+                      <div className="flex items-center space-x-3">
                         <div className="p-2 rounded-full bg-blue-100">
                           <ArrowRight className="h-4 w-4 text-blue-600" />
                         </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-blue-700">Active Recommendations</h4>
-                          <div className="mt-2 space-y-1">
-                            {rockfallNotifications.recommendations.slice(0, 3).map((rec, index) => (
-                              <p key={index} className="text-sm text-blue-600 flex items-start">
-                                <span className="mr-2">•</span>
-                                <span>{rec}</span>
-                              </p>
-                            ))}
-                            {rockfallNotifications.recommendations.length > 3 && (
-                              <p className="text-sm text-blue-500 mt-1">
-                                +{rockfallNotifications.recommendations.length - 3} more recommendations
-                              </p>
-                            )}
-                          </div>
+                        <div>
+                          <h4 className="font-medium text-blue-800">Safety Recommendations</h4>
+                          <p className="text-sm text-blue-600">
+                            {rockfallNotifications.recommendations.length} action{rockfallNotifications.recommendations.length !== 1 ? 's' : ''} recommended
+                          </p>
                         </div>
-                        <Badge variant="outline" className="text-blue-600 border-blue-300">
-                          {rockfallNotifications.recommendations.length} items
-                        </Badge>
                       </div>
+                      <span className="text-xs font-medium px-2 py-1 rounded bg-blue-100 text-blue-600">
+                        {rockfallNotifications.recommendations.length} items
+                      </span>
                     </div>
                   )}
                 </>
@@ -221,42 +374,43 @@ export const OverviewTab = () => {
               {/* Default System Alerts when no rockfall data */}
               {!rockfallNotifications.riskLevel && !rockfallNotifications.rockSize && !rockfallNotifications.trajectory && rockfallNotifications.recommendations.length === 0 && (
                 <>
-                  <div className="flex items-center space-x-4 p-4 rounded-2xl bg-green-50 border border-green-200">
-                    <div className="p-2 rounded-full bg-green-100">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-green-50 border border-green-100">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-full bg-green-100">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-green-800">Sensor Calibration Complete</h4>
+                        <p className="text-sm text-green-600">Section A-7 sensors successfully calibrated</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-green-700">Sensor Calibration Complete</h4>
-                      <p className="text-sm text-green-600/80">Section A-7 sensors successfully calibrated</p>
+                    <span className="text-xs font-medium px-2 py-1 rounded bg-green-100 text-green-600">2 min ago</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-blue-50 border border-blue-100">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-full bg-blue-100">
+                        <Brain className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-blue-800">PINN Model Update</h4>
+                        <p className="text-sm text-blue-600">Physics-informed neural network updated with new data</p>
+                      </div>
                     </div>
-                    <Badge variant="outline" className="text-green-600 border-green-300">
-                      2 min ago
-                    </Badge>
-                  </div> 
-                  <div className="flex items-center space-x-4 p-4 rounded-2xl bg-primary/10 border border-primary/20">
-                    <div className="p-2 rounded-full bg-primary/20">
-                      <Brain className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-foreground">PINN Model Update</h4>
-                      <p className="text-sm text-foreground/60">Physics-informed neural network updated with new data</p>
-                    </div>
-                    <Badge variant="outline" className="text-primary border-primary/30">
-                      5 min ago
-                    </Badge>
+                    <span className="text-xs font-medium px-2 py-1 rounded bg-blue-100 text-blue-600">5 min ago</span>
                   </div>
 
-                  <div className="flex items-center space-x-4 p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/20">
-                    <div className="p-2 rounded-full bg-yellow-500/20">
-                      <AlertCircle className="h-4 w-4 text-yellow-500" />
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-yellow-50 border border-yellow-100">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-full bg-yellow-100">
+                        <AlertCircle className="h-4 w-4 text-yellow-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-yellow-800">Maintenance Scheduled</h4>
+                        <p className="text-sm text-yellow-600">Routine inspection scheduled for tomorrow</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-foreground">Maintenance Scheduled</h4>
-                      <p className="text-sm text-foreground/60">Routine inspection scheduled for tomorrow</p>
-                    </div>
-                    <Badge variant="outline" className="text-yellow-500 border-yellow-500/30">
-                      1 hour ago
-                    </Badge>
+                    <span className="text-xs font-medium px-2 py-1 rounded bg-yellow-100 text-yellow-600">1 hour ago</span>
                   </div>
                 </>
               )}

@@ -4,10 +4,26 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Brain, Activity, TrendingUp, Zap, Play, Download } from "lucide-react";
-import { useState } from "react";
+import { Brain, Activity, TrendingUp, Zap, Play, Download, MapPin, RefreshCw } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useDashboard } from "../Dashboard";
+
+const mineData = [
+  { id: 1, name: "Bailadila Iron Ore Mine, Iron Ore, Chhattisgarh", latitude: 18.7100, longitude: 81.0500 },
+  { id: 2, name: "Dalli-Rajhara Mine, Iron Ore, Chhattisgarh", latitude: 20.5610, longitude: 81.0700 },
+  { id: 3, name: "Gokul Open Pit Mine, Manganese, Maharashtra (Nagpur)", latitude: 20.6697, longitude: 79.2964 },
+  { id: 4, name: "Hutti Gold Mine, Gold, Karnataka", latitude: 16.1972, longitude: 76.6602 },
+  { id: 5, name: "Jaduguda Mine, Uranium, Jharkhand", latitude: 22.6500, longitude: 86.3500 },
+  { id: 6, name: "Jharia Coal Mine, Coal, Jharkhand", latitude: 23.7406, longitude: 86.4146 },
+  { id: 7, name: "Khetri Copper Mine, Copper, Rajasthan", latitude: 27.9833, longitude: 75.7833 },
+  { id: 8, name: "Korba Coal Mine, Coal, Chhattisgarh", latitude: 22.3545, longitude: 82.6872 },
+  { id: 9, name: "Majri Mine, Coal, Maharashtra", latitude: 20.0681, longitude: 79.3583 },
+  { id: 10, name: "Neemuch Cement Mine, Limestone, Madhya Pradesh", latitude: 24.4766, longitude: 74.8726 },
+];
 
 export const PINNTab = () => {
+  const { selectedLocation, realtimeWeather, setRealtimeWeather } = useDashboard();
+  
   const [params, setParams] = useState({
     height: 45,
     cohesion: 25,
@@ -21,11 +37,43 @@ export const PINNTab = () => {
   });
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [isUpdatingWeather, setIsUpdatingWeather] = useState(false);
 
   const onChange = (key: keyof typeof params) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.type === 'number' ? Number(e.target.value) : e.target.value;
     setParams((p) => ({ ...p, [key]: value }));
   };
+
+  const updateWeatherData = async () => {
+    if (!selectedLocation) return;
+    
+    const mine = mineData.find(m => m.id.toString() === selectedLocation);
+    if (!mine) return;
+
+    setIsUpdatingWeather(true);
+    try {
+      const url = new URL('http://localhost:8000/realtimedata');
+      url.searchParams.append('lat', mine.latitude.toString());
+      url.searchParams.append('lon', mine.longitude.toString());
+      
+      const res = await fetch(url.toString());
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      
+      setRealtimeWeather(data);
+    } catch (error) {
+      console.error('Failed to fetch weather data:', error);
+    } finally {
+      setIsUpdatingWeather(false);
+    }
+  };
+
+  // Auto-update weather data when location changes
+  useEffect(() => {
+    if (selectedLocation) {
+      updateWeatherData();
+    }
+  }, [selectedLocation]);
 
   const runAnalysis = async () => {
     setIsRunning(true);
@@ -268,9 +316,21 @@ export const PINNTab = () => {
                 <Brain className="h-5 w-5 mr-2 text-primary" />
                 Physics Model Simulation
               </span>
-              <Badge variant="outline" className="text-primary border-primary/30">
-                Live
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={updateWeatherData}
+                  disabled={isUpdatingWeather || !selectedLocation}
+                  className="h-8 px-3"
+                >
+                  <RefreshCw className={`h-3 w-3 mr-1 ${isUpdatingWeather ? 'animate-spin' : ''}`} />
+                  <span className="hidden sm:inline ml-1">Update Data</span>
+                </Button>
+                <Badge variant="outline" className="text-primary border-primary/30">
+                  Live
+                </Badge>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -295,11 +355,23 @@ export const PINNTab = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="flex justify-between items-center p-3 rounded-lg bg-background/50">
-                <span className="text-foreground/60">Training Loss:</span>
-                <span className="text-primary font-medium">{result?.metrics?.loss ?? 0.0023}</span>
+            {selectedLocation && (
+              <div className="mb-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">
+                    {mineData.find(m => m.id.toString() === selectedLocation)?.name}
+                  </span>
+                </div>
+                {realtimeWeather && (
+                  <div className="text-xs text-foreground/60">
+                    Last Updated: {new Date(realtimeWeather.time || Date.now()).toLocaleString()}
+                  </div>
+                )}
               </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="flex justify-between items-center p-3 rounded-lg bg-background/50">
                 <span className="text-foreground/60">Height (m):</span>
                 <span className="text-secondary font-medium">{params.height}</span>
@@ -325,16 +397,32 @@ export const PINNTab = () => {
                 <span className="text-secondary font-medium">{params.water_depth_ratio}</span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg bg-background/50">
-                <span className="text-foreground/60">Rainfall (7d, mm):</span>
-                <span className="text-secondary font-medium">{params.rainfall_mm_7d}</span>
-              </div>
-              <div className="flex justify-between items-center p-3 rounded-lg bg-background/50">
                 <span className="text-foreground/60">Temperature (°C):</span>
-                <span className="text-secondary font-medium">{params.temperature_c}</span>
+                <span className="text-secondary font-medium">{realtimeWeather?.temperature_C?.toFixed(1) || params.temperature_c}</span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg bg-background/50">
-                <span className="text-foreground/60">Vibrations (m/s²):</span>
-                <span className="text-secondary font-medium">{params.vibrations_ms2}</span>
+                <span className="text-foreground/60">Humidity (%):</span>
+                <span className="text-secondary font-medium">{realtimeWeather?.humidity_percent?.toFixed(1) || '--'}</span>
+              </div>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-background/50">
+                <span className="text-foreground/60">Pressure (hPa):</span>
+                <span className="text-secondary font-medium">{realtimeWeather?.pressure_hPa?.toFixed(1) || '--'}</span>
+              </div>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-background/50">
+                <span className="text-foreground/60">Wind Speed (m/s):</span>
+                <span className="text-secondary font-medium">{realtimeWeather?.windspeed_m_s?.toFixed(1) || '--'}</span>
+              </div>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-background/50">
+                <span className="text-foreground/60">Wind Direction (°):</span>
+                <span className="text-secondary font-medium">{realtimeWeather?.winddirection_deg || '--'}</span>
+              </div>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-background/50">
+                <span className="text-foreground/60">Rainfall (7d, mm):</span>
+                <span className="text-secondary font-medium">{realtimeWeather?.rainfall_7d_mm?.toFixed(1) || params.rainfall_mm_7d}</span>
+              </div>
+              <div className="flex justify-between items-center p-3 rounded-lg bg-background/50">
+                <span className="text-foreground/60">Vibration (mm/s):</span>
+                <span className="text-secondary font-medium">{realtimeWeather?.vibration_mm_s?.toFixed(1) || params.vibrations_ms2}</span>
               </div>
             </div>
           </CardContent>

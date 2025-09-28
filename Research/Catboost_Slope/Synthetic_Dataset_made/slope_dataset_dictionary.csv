@@ -1,0 +1,16 @@
+Column,Description,Unit,Range
+case_id,Unique case identifier,-,0-355
+slope_type,Type of slope geometry (simple/compound),-,"simple, compound"
+height,Total slope height in meters,m,5.3-49.9
+cohesion,Soil cohesion in kPa,kPa,0.0-49.3
+friction_angle,Internal friction angle in degrees,°,12.8-44.9
+unit_weight,Soil unit weight in kN/m³,kN/m³,16.0-22.0
+slope_angle,Average slope angle in degrees,°,20.1-69.9
+upper_angle,Upper slope angle for compound slopes,°,20.1-69.9
+lower_angle,Lower slope angle for compound slopes,°,20.1-69.9
+water_depth_ratio,Water depth as ratio of slope height (0-1),-,0.05-0.80
+water_type,Type of water table (horizontal/inclined),-,"horizontal, inclined"
+soil_type,Predominant soil type (clay/silt/sand/mixed),-,"clay, silt, sand, mixed"
+fs_fellenius,Factor of Safety using Fellenius method,-,0.10-7.10
+fs_bishop,Factor of Safety using Bishop simplified method,-,0.10-0.10
+fs_average,Average Factor of Safety (target variable),-,0.10-3.60

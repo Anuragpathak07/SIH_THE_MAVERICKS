@@ -194,7 +194,7 @@ export const RockfallTab = () => {
         formData.append('file', blob, 'frame.jpg');
         
         try {
-          const response = await fetch('http://127.0.0.1:8000/predict_frame', {
+          const response = await fetch('http://localhost:8000/predict_frame', {
             method: 'POST',
             body: formData,
           });
@@ -314,7 +314,7 @@ export const RockfallTab = () => {
       }
     } catch (error) {
       console.error('Error processing file:', error);
-      setError('Failed to process file. Please check if the backend is running on http://localhost:8000');
+      setError('Failed to process file. Please check your internet connection.');
     } finally {
       setIsProcessing(false);
     }
@@ -322,22 +322,22 @@ export const RockfallTab = () => {
 
   const getRiskLevelColor = (riskLevel) => {
     switch (riskLevel?.toLowerCase()) {
-      case 'low': return 'bg-green-500/20 text-green-400 border-green-500/30';
+      case 'low': return 'text-green-400 border-green-500/30';
       case 'mid': 
-      case 'medium': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'high': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-      case 'critical': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      case 'medium': return 'text-yellow-400 border-yellow-500/30';
+      case 'high': return 'text-orange-400 border-orange-500/30';
+      case 'critical': return 'text-red-400 border-red-500/30';
+      default: return 'text-gray-400 border-gray-500/30';
     }
   };
 
   const getRockSizeColor = (rockSize) => {
     switch (rockSize?.toLowerCase()) {
-      case 'small': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+      case 'small': return 'text-blue-400 border-blue-500/30';
       case 'mid': 
-      case 'medium': return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-      case 'large': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      case 'medium': return 'text-yellow-400 border-yellow-500/30';
+      case 'large': return 'text-red-400 border-red-500/30';
+      default: return 'text-gray-400 border-gray-500/30';
     }
   };
 
@@ -470,13 +470,29 @@ export const RockfallTab = () => {
                 </div>
 
                 {isCameraActive && (
-                  <div className="space-y-3">
-                    <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <div className="space-y-3">
+                    <div className={`p-4 rounded-lg ${
+                      liveData.some(data => data.riskLevel === 'critical' || data.riskLevel === 'high') 
+                        ? 'bg-red-500/10 border border-red-500/20' 
+                        : 'bg-green-500/10 border border-green-500/20'
+                    }`}>
                       <div className="flex items-center space-x-2">
-                        <div className="h-2 w-2 bg-green-400 rounded-full animate-pulse"></div>
-                        <p className="text-green-400 font-medium">Live Monitoring Active</p>
+                        <div className={`h-2 w-2 rounded-full animate-pulse ${
+                          liveData.some(data => data.riskLevel === 'critical' || data.riskLevel === 'high')
+                            ? 'bg-red-400'
+                            : 'bg-green-400'
+                        }`}></div>
+                        <p className={`font-medium ${
+                          liveData.some(data => data.riskLevel === 'critical' || data.riskLevel === 'high')
+                            ? 'text-red-400'
+                            : 'text-green-400'
+                        }`}>Live Monitoring Active</p>
                       </div>
-                      <p className="text-green-300 text-sm mt-1">
+                      <p className={`text-sm mt-1 ${
+                        liveData.some(data => data.riskLevel === 'critical' || data.riskLevel === 'high')
+                          ? 'text-red-300'
+                          : 'text-green-300'
+                      }`}>
                         Analyzing frames every second • Anomaly-based segmentation enabled
                       </p>
                     </div>
@@ -644,8 +660,9 @@ export const RockfallTab = () => {
                       <Mountain className="h-4 w-4 mr-2" />
                       Rock Size
                     </h4>
-                    <div className={`inline-flex items-center px-3 py-2 rounded-lg border font-medium text-sm ${getRockSizeColor(rockfallNotifications.rockSize)}`}>
-                      {rockfallNotifications.rockSize}
+                     <div className={`inline-flex items-center px-3 py-2 rounded-lg border font-medium text-sm ${getRockSizeColor(rockfallNotifications.rockSize)}`}>
+                       <Mountain className="h-3 w-3 mr-2" />
+                       {rockfallNotifications.rockSize}
                     </div>
                   </div>
                 )}
@@ -657,11 +674,11 @@ export const RockfallTab = () => {
                       <TrendingDown className="h-4 w-4 mr-2" />
                       Trajectory
                     </h4>
-                    <div className={`inline-flex items-center px-3 py-2 rounded-lg border font-medium text-sm ${
-                      rockfallNotifications.trajectory?.toLowerCase() === 'stable' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                      rockfallNotifications.trajectory?.toLowerCase() === 'moderate' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                      'bg-red-500/20 text-red-400 border-red-500/30'
-                    }`}>
+                     <div className={`inline-flex items-center px-3 py-2 rounded-lg border font-medium text-sm ${
+                       rockfallNotifications.trajectory?.toLowerCase() === 'stable' ? 'text-green-400 border-green-500/30' :
+                       rockfallNotifications.trajectory?.toLowerCase() === 'moderate' ? 'text-yellow-400 border-yellow-500/30' :
+                       'text-red-400 border-red-500/30'
+                     }`}>
                       {rockfallNotifications.trajectory}
                     </div>
                   </div>
@@ -677,7 +694,7 @@ export const RockfallTab = () => {
                   </h4>
                   <div className="space-y-2">
                     {rockfallNotifications.recommendations.map((rec, index) => (
-                      <div key={index} className="flex items-start space-x-2 p-2 bg-muted/30 rounded-lg">
+                      <div key={index} className="flex items-start space-x-2 p-2 rounded-lg border border-muted">
                         <ArrowRight className="h-3 w-3 text-primary mt-0.5 flex-shrink-0" />
                         <p className="text-foreground text-xs">{rec}</p>
                       </div>
@@ -695,112 +712,119 @@ export const RockfallTab = () => {
                 <TrendingUp className="h-5 w-5 mr-2 text-primary" />
                 {isCameraActive ? 'Live Confidence Graph' : 'Confidence History'}
               </h3>
-              <div className="relative h-32 bg-muted/20 rounded-lg p-4">
-                <svg className="w-full h-full" viewBox="0 0 400 100">
+              <div className="relative h-40 bg-muted/20 rounded-lg p-4">
+                {/* Y-axis labels */}
+                <div className="absolute left-1 top-2 text-xs text-foreground/60">100%</div>
+                <div className="absolute left-1 top-1/2 text-xs text-foreground/60">50%</div>
+                <div className="absolute left-1 bottom-2 text-xs text-foreground/60">0%</div>
+                
+                <svg className="w-full h-full ml-6" viewBox="0 0 400 120">
                   <defs>
                     <linearGradient id="confidenceGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3"/>
-                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.1"/>
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.4"/>
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.05"/>
                     </linearGradient>
                   </defs>
                   
-                  {/* Smooth curve path */}
-                  <path
-                    d={confidenceHistory.length > 1 ? (() => {
-                      const points = confidenceHistory.map((point, idx) => ({
-                        x: (idx / (confidenceHistory.length - 1)) * 400,
-                        y: 100 - point.confidence
-                      }));
-                      
-                      // Create smooth curve using quadratic bezier curves
-                      let path = `M ${points[0].x} ${points[0].y}`;
-                      
-                      for (let i = 1; i < points.length; i++) {
-                        const prevPoint = points[i - 1];
-                        const currentPoint = points[i];
-                        
-                        if (i === 1) {
-                          // First curve segment
-                          const midX = (prevPoint.x + currentPoint.x) / 2;
-                          const midY = (prevPoint.y + currentPoint.y) / 2;
-                          path += ` Q ${prevPoint.x} ${prevPoint.y} ${midX} ${midY}`;
-                        } else if (i === points.length - 1) {
-                          // Last curve segment
-                          path += ` Q ${currentPoint.x} ${currentPoint.y} ${currentPoint.x} ${currentPoint.y}`;
-                        } else {
-                          // Middle curve segments
-                          const midX = (prevPoint.x + currentPoint.x) / 2;
-                          const midY = (prevPoint.y + currentPoint.y) / 2;
-                          path += ` Q ${currentPoint.x} ${currentPoint.y} ${midX} ${midY}`;
-                        }
-                      }
-                      
-                      return path;
-                    })() : ''}
-                    fill="none"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="drop-shadow-sm"
-                  />
+                  {/* Grid lines */}
+                  <defs>
+                    <pattern id="grid" width="40" height="30" patternUnits="userSpaceOnUse">
+                      <path d="M 40 0 L 0 0 0 30" fill="none" stroke="hsl(var(--border))" strokeWidth="0.5" opacity="0.3"/>
+                    </pattern>
+                  </defs>
+                  <rect width="400" height="120" fill="url(#grid)"/>
                   
-                  {/* Area fill under the curve */}
-                  {confidenceHistory.length > 1 && (
-                    <path
-                      d={(() => {
-                        const points = confidenceHistory.map((point, idx) => ({
-                          x: (idx / (confidenceHistory.length - 1)) * 400,
-                          y: 100 - point.confidence
-                        }));
-                        
-                        let path = `M ${points[0].x} ${points[0].y}`;
-                        
-                        for (let i = 1; i < points.length; i++) {
-                          const prevPoint = points[i - 1];
-                          const currentPoint = points[i];
-                          
-                          if (i === 1) {
-                            const midX = (prevPoint.x + currentPoint.x) / 2;
-                            const midY = (prevPoint.y + currentPoint.y) / 2;
-                            path += ` Q ${prevPoint.x} ${prevPoint.y} ${midX} ${midY}`;
-                          } else if (i === points.length - 1) {
-                            path += ` Q ${currentPoint.x} ${currentPoint.y} ${currentPoint.x} ${currentPoint.y}`;
-                          } else {
-                            const midX = (prevPoint.x + currentPoint.x) / 2;
-                            const midY = (prevPoint.y + currentPoint.y) / 2;
-                            path += ` Q ${currentPoint.x} ${currentPoint.y} ${midX} ${midY}`;
-                          }
-                        }
-                        
-                        // Close the path to create area
-                        const lastPoint = points[points.length - 1];
-                        path += ` L ${lastPoint.x} 100 L ${points[0].x} 100 Z`;
-                        
-                        return path;
-                      })()}
-                      fill="url(#confidenceGradient)"
-                    />
-                  )}
+                  {/* Horizontal reference lines */}
+                  <line x1="0" y1="30" x2="400" y2="30" stroke="hsl(var(--border))" strokeWidth="1" opacity="0.2"/>
+                  <line x1="0" y1="60" x2="400" y2="60" stroke="hsl(var(--border))" strokeWidth="1" opacity="0.3"/>
+                  <line x1="0" y1="90" x2="400" y2="90" stroke="hsl(var(--border))" strokeWidth="1" opacity="0.2"/>
                   
-                  {/* Subtle glow dots on data points - minimal for smooth look */}
-                  {confidenceHistory.map((point, idx) => (
-                    <circle
-                      key={idx}
-                      cx={(idx / (confidenceHistory.length - 1 || 1)) * 400}
-                      cy={100 - point.confidence}
-                      r="2"
-                      fill="hsl(var(--primary))"
-                      className="opacity-60"
-                      style={{
-                        filter: 'drop-shadow(0 0 2px hsl(var(--primary)))'
-                      }}
-                    />
-                  ))}
+                  {(() => {
+                    // Scale confidence values properly (assume 0-1 range, scale to 0-90 for display)
+                    const scaledPoints = confidenceHistory.map((point, idx) => {
+                      const confidence = typeof point.confidence === 'number' ? point.confidence : 0;
+                      // If confidence > 1, assume it's already percentage (0-100), otherwise scale from 0-1
+                      const scaledConfidence = confidence > 1 ? confidence : confidence * 100;
+                      return {
+                        x: (idx / Math.max(confidenceHistory.length - 1, 1)) * 400,
+                        y: 90 - (scaledConfidence * 0.9), // Scale to fit in 90px height with padding
+                        confidence: scaledConfidence
+                      };
+                    });
+                    
+                    if (scaledPoints.length === 0) return null;
+                    
+                    // Create smooth path using simple line segments with rounded corners
+                    let pathD = `M ${scaledPoints[0].x} ${scaledPoints[0].y}`;
+                    for (let i = 1; i < scaledPoints.length; i++) {
+                      pathD += ` L ${scaledPoints[i].x} ${scaledPoints[i].y}`;
+                    }
+                    
+                    // Area fill path
+                    let areaPathD = `M ${scaledPoints[0].x} 90`; // Start from bottom
+                    for (let i = 0; i < scaledPoints.length; i++) {
+                      areaPathD += ` L ${scaledPoints[i].x} ${scaledPoints[i].y}`;
+                    }
+                    areaPathD += ` L ${scaledPoints[scaledPoints.length - 1].x} 90 Z`; // Close to bottom
+                    
+                    return (
+                      <>
+                        {/* Area fill */}
+                        <path
+                          d={areaPathD}
+                          fill="url(#confidenceGradient)"
+                        />
+                        
+                        {/* Main line */}
+                        <path
+                          d={pathD}
+                          fill="none"
+                          stroke="hsl(var(--primary))"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="drop-shadow-sm"
+                          style={{
+                            filter: 'drop-shadow(0 1px 2px hsl(var(--primary) / 0.3))'
+                          }}
+                        />
+                        
+                        {/* Data points */}
+                        {scaledPoints.map((point, idx) => (
+                          <g key={idx}>
+                            <circle
+                              cx={point.x}
+                              cy={point.y}
+                              r="3"
+                              fill="hsl(var(--background))"
+                              stroke="hsl(var(--primary))"
+                              strokeWidth="2"
+                            />
+                            <circle
+                              cx={point.x}
+                              cy={point.y}
+                              r="1.5"
+                              fill="hsl(var(--primary))"
+                            />
+                          </g>
+                        ))}
+                      </>
+                    );
+                  })()}
                 </svg>
-                <div className="absolute bottom-0 left-0 text-xs text-foreground/60">0%</div>
-                <div className="absolute top-0 left-0 text-xs text-foreground/60">100%</div>
-                <div className="absolute bottom-0 right-0 text-xs text-foreground/60">Latest</div>
+                
+                {/* Current confidence value display */}
+                {confidenceHistory.length > 0 && (
+                  <div className="absolute top-2 right-2 bg-primary/10 border border-primary/20 px-3 py-1 rounded-lg">
+                    <div className="text-xs text-primary font-medium">
+                      Current: {(() => {
+                        const lastConfidence = confidenceHistory[confidenceHistory.length - 1]?.confidence || 0;
+                        const displayValue = lastConfidence > 1 ? lastConfidence : lastConfidence * 100;
+                        return `${displayValue.toFixed(1)}%`;
+                      })()}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
